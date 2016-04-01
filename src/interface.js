@@ -1,47 +1,53 @@
 $(document).ready(function(){
 
-  $.get("http://localhost:4567/temp", function(data) {
+var thermostat;
+
+
+
+    $.getJSON("http://localhost:4567/temp", function(data) {
+      console.log(data.temp);
+      thermostat = new Thermostat(data.temp);
+      console.log(thermostat);
+      updateDisplay();
   });
 
-
-
-
-  var thermostat = new Thermostat;
-  updateDisplay();
 
   function updateDisplay() {
     $('#temperature').text(thermostat.getCurrentTemperature());
     $('#temperature').attr('class', thermostat.temperatureColour());
     $('#powerSaveSwitch').attr('class',thermostat.powerSaveStatus());
-
-
-  $.ajax({
-    url: "http://localhost:4567/temp",
-    type: "POST",
-    data: JSON.stringify(thermostat.getCurrentTemperature()),
-    contentType: 'application/json',  
-  });
-
   };
+
+  function updateDatabase() {
+    $.ajax({
+      url: "http://localhost:4567/temp",
+      type: "POST",
+      data: {temp: thermostat.getCurrentTemperature()}
+    });
+  }
 
   $('#increaseTemperature').on('click', function() {
     thermostat.increaseTemperature();
+    updateDatabase();
     updateDisplay();
   });
 
   $('#decreaseTemperature').on('click', function() {
     thermostat.decreaseTemperature();
+    updateDatabase();
     updateDisplay();
   });
 
   $('#powerSaveSwitch').on('click', function() {
     thermostat.powerSaveSwitch();
     $('#powerSave').text(thermostat.powerSaveStatus());
+    updateDatabase();
     updateDisplay();
   });
 
   $('#resetTemperature').on('click', function() {
     thermostat.resetTemperature();
+    updateDatabase();
     updateDisplay();
   });
 
